@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기숙사 좀비 사태 시뮬레이션 허브</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .hub-container {
+            text-align: center;
+            background: #2a2a2a;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 { font-size: 24px; margin-bottom: 10px; color: #e74c3c; }
+        p { color: #aaa; margin-bottom: 30px; font-size: 14px; }
+        .btn-panel { display: flex; flex-direction: column; gap: 15px; }
+        .btn {
+            display: block;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-virus { background-color: #c0392b; }
+        .btn-virus:hover { background-color: #e74c3c; }
+        .btn-parasite { background-color: #8e44ad; }
+        .btn-parasite:hover { background-color: #9b59b6; }
+    </style>
+</head>
+<body>
+
+<div class="hub-container">
+    <h1>☣️ 좀비 확산 수리모델 시뮬레이터</h1>
+    <p>외대부고 Watson & 하나고 Yung 연합 포럼 학술 데이터 허브</p>
+    
+    <div class="btn-panel">
+        <a href="virus_simul.html" class="btn btn-virus">🦠 바이러스성 확산 시뮬레이션 (SIR)</a>
+        <a href="parasite_simul.html" class="btn btn-parasite">🐛 기생충성 간접 확산 시뮬레이션 (SIRE)</a>
+    </div>
+</div>
+
+</body>
+</html>

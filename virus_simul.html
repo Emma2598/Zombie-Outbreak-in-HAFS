@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기숙사 좀비 바이러스 확산 시뮬레이션 (SIR 모델)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        /* 뒤로가기 버튼 스타일 */
+        .back-button {
+            display: inline-block;
+            text-decoration: none;
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 6px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+        .back-button:hover {
+            color: #2c3e50;
+            background: #f8f9fa;
+            border-color: #7f8c8d;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        .fixed-info {
+            background: #e8f4fd;
+            border-left: 5px solid #3498db;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 15px;
+            color: #2c3e50;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+        .value-display {
+            text-align: right;
+            font-size: 14px;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="back-button">⬅ 메인 화면으로</a>
+
+    <h1>🦠 기숙사 바이러스성 좀비 사태 확산 시뮬레이터</h1>
+    <div class="subtitle">외대부고 Watson & 하나고 Yung 연합 포럼 학술 데이터</div>
+    
+    <div class="fixed-info">
+        📍 실험 조건: 기숙사 총 인원 (N) = 365명 고정 (초기 감염자 1명 포함)
+    </div>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="beta">바이러스 전파력 (Beta - 감염률)</label>
+            <input type="range" id="beta" min="0" max="2.0" step="0.05" value="0.6">
+            <div class="value-display" id="betaValue">0.6</div>
+        </div>
+        <div class="control-group">
+            <label for="gamma">학생회 대응력 (Gamma - 격리율)</label>
+            <input type="range" id="gamma" min="0" max="1.0" step="0.05" value="0.1">
+            <div class="value-display" id="gammaValue" style="color:#2ecc71;">0.1</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="sirChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const TOTAL_POPULATION = 365;
+
+    function calculateSIR(beta, gamma, days = 60) {
+        let S = TOTAL_POPULATION - 1; 
+        let I = 1;     
+        let R = 0;     
+        
+        const dt = 0.1; 
+        const steps = days / dt;
+
+        let dataS = [S];
+        let dataI = [I];
+        let dataR = [R];
+        let labels = [0];
+
+        for (let t = 1; t <= steps; t++) {
+            let dS = (-beta * S * I / TOTAL_POPULATION) * dt;
+            let dI = ((beta * S * I / TOTAL_POPULATION) - gamma * I) * dt;
+            let dR = (gamma * I) * dt;
+
+            S += dS;
+            I += dI;
+            R += dR;
+
+            if (t % 10 === 0) { 
+                dataS.push(Math.max(0, S));
+                dataI.push(Math.max(0, I));
+                dataR.push(Math.max(0, R));
+                labels.push(t / 10);
+            }
+        }
+        return { labels, dataS, dataI, dataR };
+    }
+
+    const ctx = document.getElementById('sirChart').getContext('2d');
+    let sirChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: '미감염자 (S)',
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: true,
+                    data: []
+                },
+                {
+                    label: '감염자 / 좀비 (I)',
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: true,
+                    data: []
+                },
+                {
+                    label: '격리 / 무력화 (R)',
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.4,
+                    fill: true,
+                    data: []
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { title: { display: true, text: '시간 (Days)' } },
+                y: { title: { display: true, text: '학생 수 (명)' }, min: 0, max: 365 }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + Math.round(context.parsed.y) + '명';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    function updateChart() {
+        const beta = parseFloat(document.getElementById('beta').value);
+        const gamma = parseFloat(document.getElementById('gamma').value);
+
+        document.getElementById('betaValue').innerText = beta.toFixed(2);
+        document.getElementById('gammaValue').innerText = gamma.toFixed(2);
+
+        const simData = calculateSIR(beta, gamma);
+
+        sirChart.data.labels = simData.labels;
+        sirChart.data.datasets[0].data = simData.dataS;
+        sirChart.data.datasets[1].data = simData.dataI;
+        sirChart.data.datasets[2].data = simData.dataR;
+        sirChart.update();
+    }
+
+    document.getElementById('beta').addEventListener('input', updateChart);
+    document.getElementById('gamma').addEventListener('input', updateChart);
+
+    updateChart();
+</script>
+
+</body>
+</html>
