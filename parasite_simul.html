@@ -24,7 +24,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             position: relative;
         }
-        /* 뒤로가기 버튼 스타일 */
         .back-button {
             display: inline-block;
             text-decoration: none;
@@ -107,7 +106,7 @@
     <a href="index.html" class="back-button">⬅ 메인 화면으로</a>
 
     <h1>🐛 기숙사 기생충성 좀비 사태 확산 시뮬레이터</h1>
-    <div class="subtitle">외대부고 Watson & 하나고 Yung 연합 포럼 학술 데이터</div>
+    <div class="subtitle">외대부고 Watson & 하나고 Yoong 연합 포럼 학술 데이터</div>
     
     <div class="fixed-info">
         📍 실험 조건: 기숙사 총 인원 (N) = 365명 고정 (초기 감염자 1명 포함)
@@ -182,7 +181,7 @@
     }
 
     const ctx = document.getElementById('sireChart').getContext('2d');
-    let sireChart = new Chart(ctx, {
+    let sireChart = new Error && typeof Chart !== 'undefined' ? new Chart(ctx, {
         type: 'line',
         data: {
             labels: [],
@@ -210,9 +209,10 @@
                 y: { title: { display: true, text: '수량 / 개체 수' }, min: 0, max: 365 }
             }
         }
-    });
+    }) : null;
 
     function updateChart() {
+        if(!sireChart) return;
         const alpha = parseFloat(document.getElementById('alpha').value);
         const mu = parseFloat(document.getElementById('mu').value);
         const beta = parseFloat(document.getElementById('beta').value);
